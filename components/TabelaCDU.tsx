@@ -24,8 +24,8 @@ export default function TabelaCDU() {
   // <DadosCDU> avisa ao React que essa variável 'dados' segue a interface acima.
   const [dados, setDados] = useState<DadosCDU>({
     id: "CDU01",
-    titulo: "Manter Funcionários",
-    modulo: "Administrador",
+    titulo: "",
+    modulo: "",
     descricao: "",
     atores: "",
     preCondicoes: "",
@@ -121,7 +121,7 @@ export default function TabelaCDU() {
         <div className="flex-1">
           <input 
             className="w-full p-2 text-black outline-none focus:bg-blue-50"
-            name="pre-condicoes"
+            name="preCondicoes"
             placeholder="Pré-condições para este CDU..."
             value={dados.preCondicoes}
             onChange={handleChange}
@@ -137,9 +137,57 @@ export default function TabelaCDU() {
         <div className="flex-1">
           <input 
             className="w-full p-2 text-black outline-none focus:bg-blue-50"
-            name="pre-condicoes"
-            placeholder="Pré-condições para este CDU..."
-            value={dados.preCondicoes}
+            name="fluxoPrincipal"
+            placeholder="Fluxo principal deste CDU..."
+            value={dados.fluxoPrincipal}
+            onChange={handleChange}
+          />
+        </div>
+      </div>
+
+      {/* Fluxos Alternativos */}
+      <div className="flex border-b border-gray-400">
+        <div className="w-40 p-2 font-bold text-black bg-gray-50 border-r border-gray-400 flex items-center">
+          Fluxos Alternativos
+        </div>
+        <div className="flex-1">
+          <input 
+            className="w-full p-2 text-black outline-none focus:bg-blue-50"
+            name="fluxosAlternativos"
+            placeholder="Fluxos Alternativos deste CDU..."
+            value={dados.fluxosAlternativos}
+            onChange={handleChange}
+          />
+        </div>
+      </div>
+
+      {/* Fluxos Exceção */}
+      <div className="flex border-b border-gray-400">
+        <div className="w-40 p-2 font-bold text-black bg-gray-50 border-r border-gray-400 flex items-center">
+          Fluxos Exceção
+        </div>
+        <div className="flex-1">
+          <input 
+            className="w-full p-2 text-black outline-none focus:bg-blue-50"
+            name="fluxosExcecao"
+            placeholder="Fluxos Exceção deste CDU..."
+            value={dados.fluxosExcecao}
+            onChange={handleChange}
+          />
+        </div>
+      </div>
+
+      {/* Pós Condições */}
+      <div className="flex border-b border-gray-400">
+        <div className="w-40 p-2 font-bold text-black bg-gray-50 border-r border-gray-400 flex items-center">
+          Pós Condições
+        </div>
+        <div className="flex-1">
+          <input 
+            className="w-full p-2 text-black outline-none focus:bg-blue-50"
+            name="posCondicoes"
+            placeholder="Pós Condições deste CDU..."
+            value={dados.posCondicoes}
             onChange={handleChange}
           />
         </div>
@@ -147,7 +195,7 @@ export default function TabelaCDU() {
 
       {/* Debug Area (Só pra gente ver funcionando) */}
       <div className="bg-gray-800 text-white p-2 text-xs font-mono">
-        TS State: {JSON.stringify(dados)}
+        <span>TS State: {JSON.stringify(dados)}</span>
       </div>
 
     </div>
