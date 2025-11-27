@@ -1,24 +1,29 @@
+import React from 'react';
+
+// O formato de como salvamos no banco/JSON
+export interface Block {
+  id: string;
+  type: string;
+  content: any; // Pode ser texto, dados do CDU, imagem, etc.
+}
+
+// O CONTRATO DO PLUGIN
+// Todo componente novo deve exportar um objeto seguindo essa interface
 export interface BlockPlugin {
-  type: string;          // ID interno (ex: 'imagem', 'cdu')
-  label: string;         // Nome no botão (ex: '+ Imagem')
-  buttonColor: string;   // Cor do botão (ex: 'bg-purple-600')
-  initialContent: any;   // Dados padrão ao criar
-  
-  // O Componente React que renderiza na tela
+  type: string;          // ID único (ex: 'cdu', 'texto', 'imagem')
+  label: string;         // Nome no botão (ex: '+ Tabela CDU')
+  buttonColor: string;   // Classes Tailwind para o botão
+  initialContent: any;   // Dados iniciais ao criar o bloco
+  usesVisualId?: boolean; // Se true, recebe o contador (ex: CDU01)
+
+  // O Componente React que aparece na tela
   Component: React.FC<{ 
     data: any; 
     onUpdate: (newData: any) => void; 
     readOnly?: boolean;
-    idVisual?: string; // Para passar o "CDU01" se precisar
+    idVisual?: string; // ex: "CDU01"
   }>;
 
-  // A função que transforma os dados em DOCX
-  // Retorna um array de nós do docx (Paragraph, Table, etc)
+  // A função que transforma os dados em nós do DOCX
   exporter: (content: any, idVisual?: string) => any[];
-}
-
-export interface Block {
-  id: string;
-  type: string;
-  content: any;
 }

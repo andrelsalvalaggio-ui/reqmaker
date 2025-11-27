@@ -1,282 +1,205 @@
 "use client";
 
-import React, { ChangeEvent } from 'react';
-import { Table, TableRow, TableCell, Paragraph, TextRun, AlignmentType, WidthType, TableLayoutType } from "docx";
+import React from 'react';
+// 1. Adicionado VerticalAlign aos imports
+import { Paragraph, TextRun, Table, TableRow, TableCell, WidthType, TableLayoutType, AlignmentType, VerticalAlign } from "docx";
+import { BlockPlugin } from '../app/types';
 
-interface TabelaCDUProps {
-  indice: number;
-  data: CDUData; // Recebe o DTO preenchido
-  onUpdate: (newData: CDUData) => void; // Função para avisar o pai
-  readOnly?: boolean;
+// 1. Definição dos dados
+interface CDUData {
+  titulo: string;
+  modulo: string;
+  descricao: string;
+  atores: string;
+  preCondicoes: string;
+  posCondicoes: string;
+  fluxoPrincipal: string;
+  fluxoAlternativo: string;
+  fluxoExcecao: string;
 }
 
-export default function TabelaCDU({ indice, data, onUpdate, readOnly = false }: TabelaCDUProps) {
-  
-  // Formatando o ID baseado no índice (ex: 1 vira "CDU01", 10 vira "CDU10")
-  const idFormatado = `CDU${indice.toString().padStart(2, '0')}`;
+// 2. Componente Visual
+const BlocoCDUComponent = ({ data, onUpdate, readOnly, idVisual }: any) => {
+  const cduData = data as CDUData;
 
-  const handleChange = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    const { name, value } = e.target;
-    onUpdate({ ...data, [name]: value });
+  const updateField = (field: keyof CDUData, value: string) => {
+    onUpdate({ ...cduData, [field]: value });
   };
 
   return (
-    <div className={`my-4 max-w-4xl mx-auto ${readOnly ? 'preview-mode' : 'shadow-lg bg-white'}`}>
+    <div className={`my-4 max-w-4xl mx-auto ${readOnly ? 'preview-mode' : 'bg-white border border-gray-300 shadow-sm p-6 rounded-lg'}`}>
       
-      {/* Classe border-collapse faz as bordas ficarem "coladas" igual Excel */}
-      <table className="w-full border-collapse border border-gray-400">
-        
-        {/* --- CABEÇALHO --- */}
-        <thead>
-          <tr className="bg-gray-100">
-            {/* O ID agora é gerado automaticamente, mas visualmente parece um campo */}
-            <th className="border border-gray-400 p-2 w-24 text-black">ID</th>
-            <th className="border border-gray-400 p-2 text-black">Título</th>
-            <th className="border border-gray-400 p-2 w-48 text-black">Módulo</th>
-          </tr>
-        </thead>
-
-        <tbody>
-          {/* --- LINHA 1: Inputs do Cabeçalho --- */}
-          <tr>
-            <td className="border border-gray-400 p-0">
-              <input 
-                className="w-full p-2 text-center font-bold text-black outline-none bg-gray-50 cursor-not-allowed"
-                value={idFormatado}
-                disabled
-              />
-            </td>
-            <td className="border border-gray-400 p-0">
-              <input 
-                className="w-full p-2 outline-none text-black focus:bg-blue-50"
-                name="titulo"
-                placeholder="Ex: Manter Usuários"
-                value={data.titulo || ""}
-                onChange={handleChange}
-                disabled={readOnly}
-              />
-            </td>
-            <td className="border border-gray-400 p-0">
-              <input 
-                className="w-full p-2 text-center font-bold text-black outline-none focus:bg-blue-50"
-                name="modulo"
-                placeholder="Administrador"
-                value={data.modulo || ""}
-                onChange={handleChange}
-                disabled={readOnly}
-              />
-            </td>
-          </tr>
-
-          {/* --- LINHAS DE CONTEÚDO (Label + TextArea/Input) --- */}
-          {/* Função auxiliar para criar linhas padronizadas */}
-          <RowTextArea 
-            label="Descrição" 
-            name="descricao" 
-            value={data.descricao || ""}
-            onChange={handleChange}
-            disabled={readOnly} 
-          />
-          <RowInput 
-            label="Atores" 
-            name="atores" 
-            value={data.atores || ""}
-            onChange={handleChange}
-            disabled={readOnly} 
-          />
-          <RowTextArea
-            label="Pré-condições" 
-            name="preCondicoes" 
-            value={data.preCondicoes || ""}
-            onChange={handleChange}
-            disabled={readOnly} 
-          />
-          
-          {/* Fluxo Principal e Alternativos */}
-          <RowTextArea 
-             label="Fluxo Principal" 
-             name="fluxoPrincipal" 
-             value={data.fluxoPrincipal || ""}
-             onChange={handleChange}
-             disabled={readOnly} 
-             rows={4}
-          />
-          
-           <RowTextArea 
-             label="Fluxos Alternativos" 
-             name="fluxosAlternativos" 
-             value={data.fluxosAlternativos || ""}
-             onChange={handleChange}
-             disabled={readOnly} 
-             rows={3}
-          />
-          
-           <RowTextArea 
-             label="Fluxos de Exceção" 
-             name="fluxosExcecao" 
-             value={data.fluxosExcecao || ""}
-             onChange={handleChange}
-             disabled={readOnly} 
-             rows={2}
-          />
-
-          <RowTextArea
-            label="Pós-condições" 
-            name="posCondicoes" 
-            value={data.posCondicoes || ""}
-            onChange={handleChange}
-            disabled={readOnly} 
-          />
-
-        </tbody>
-      </table>
-
-      {/* Debug Area */}
-      <div className="bg-gray-800 text-white p-1 text-xs font-mono">
-        DATA: {idFormatado} - {JSON.stringify(data)}
+      {/* Cabeçalho */}
+      <div className="flex items-center gap-4 mb-4 border-b pb-2">
+        <span className="bg-blue-600 text-white font-bold px-3 py-1 rounded text-sm">
+          {idVisual || "CDU??"}
+        </span>
+        <input 
+          className="flex-1 font-bold text-lg text-gray-800 outline-none bg-transparent placeholder-gray-400"
+          placeholder="Título do Caso de Uso"
+          value={cduData.titulo}
+          onChange={(e) => updateField('titulo', e.target.value)}
+          disabled={readOnly}
+        />
+        <input 
+          className="w-32 text-right text-sm text-gray-500 outline-none bg-transparent"
+          placeholder="Módulo..."
+          value={cduData.modulo}
+          onChange={(e) => updateField('modulo', e.target.value)}
+          disabled={readOnly}
+        />
       </div>
 
+      <div className="grid grid-cols-1 gap-4">
+        <div>
+           <label className="block text-xs font-bold text-gray-500 uppercase mb-1">Descrição Resumida</label>
+           <textarea className="w-full bg-gray-50 border border-gray-200 rounded p-2 text-sm outline-none resize-none h-16"
+             value={cduData.descricao} onChange={(e) => updateField('descricao', e.target.value)} disabled={readOnly} />
+        </div>
+
+        <div>
+          <label className="block text-xs font-bold text-gray-500 uppercase mb-1">Atores</label>
+          <input className="w-full bg-gray-50 border border-gray-200 rounded p-2 text-sm outline-none"
+            value={cduData.atores} onChange={(e) => updateField('atores', e.target.value)} disabled={readOnly} />
+        </div>
+
+        <div className="grid grid-cols-2 gap-4">
+          <div>
+            <label className="block text-xs font-bold text-gray-500 uppercase mb-1">Pré-condições</label>
+            <textarea className="w-full bg-gray-50 border border-gray-200 rounded p-2 text-sm outline-none resize-none h-20"
+              value={cduData.preCondicoes} onChange={(e) => updateField('preCondicoes', e.target.value)} disabled={readOnly} />
+          </div>
+          <div>
+            <label className="block text-xs font-bold text-gray-500 uppercase mb-1">Pós-condições</label>
+            <textarea className="w-full bg-gray-50 border border-gray-200 rounded p-2 text-sm outline-none resize-none h-20"
+              value={cduData.posCondicoes} onChange={(e) => updateField('posCondicoes', e.target.value)} disabled={readOnly} />
+          </div>
+        </div>
+
+        {/* Fluxos */}
+        {['fluxoPrincipal', 'fluxoAlternativo', 'fluxoExcecao'].map((field) => (
+          <div key={field}>
+            <label className="block text-xs font-bold text-gray-500 uppercase mb-1">
+              {field.replace(/([A-Z])/g, ' $1').trim()} {/* Formata CamelCase para Texto */}
+            </label>
+            <textarea className="w-full bg-gray-50 border border-gray-200 rounded p-2 text-sm outline-none resize-y min-h-[60px]"
+              value={cduData[field as keyof CDUData]} 
+              onChange={(e) => updateField(field as keyof CDUData, e.target.value)} 
+              disabled={readOnly} 
+            />
+          </div>
+        ))}
+      </div>
     </div>
   );
-}
+};
 
-// --- Componentes Auxiliares para limpar o código ---
-
-function RowInput({ label, name, value, onChange }: any) {
-  return (
-    <tr>
-      <td className="border border-gray-400 p-2 font-bold bg-gray-50 text-black align-middle w-40">
-        {label}
-      </td>
-      <td colSpan={2} className="border border-gray-400 p-0">
-        <input 
-          className="w-full p-2 outline-none text-black focus:bg-blue-50"
-          name={name}
-          value={value}
-          onChange={onChange}
-        />
-      </td>
-    </tr>
-  );
-}
-
-function RowTextArea({ label, name, value, onChange, rows }: any) {
-  return (
-    <tr>
-      <td className="border border-gray-400 p-2 font-bold bg-gray-50 text-black align-top w-40 pt-3">
-        {label}
-      </td>
-      <td colSpan={2} className="max-w-1 border border-gray-400 p-0">
-        <textarea 
-          className="w-full resize-none field-sizing-content max-w-full p-2 outline-none text-black focus:bg-blue-50 block"
-          rows={rows}
-          name={name}
-          value={value}
-          onChange={onChange}
-        />
-      </td>
-    </tr>
-  );
-}
-
-export const exportarTabelaCDU = (data: CDUData, idVisual: string) => {
-  
+// 3. Lógica de Exportação
+const exportLogic = (data: CDUData, idVisual?: string) => {
   const fontStyle = "Arial";
-  const fontSize = 20; // 10pt
+  const fontSize = 20; 
   const grayColor = "F2F2F2";
 
+  const safeId = idVisual || "";
+
+  type AlignOption = (typeof AlignmentType)[keyof typeof AlignmentType];
+  
   const cleanText = (t: string) => (t && t.trim() !== "") ? t : "\u200B";
 
-  // Helper corrigido: Agora o parametro 'align' aceita qualquer tipo de AlignmentType
-  const para = (text: string, align: (typeof AlignmentType)[keyof typeof AlignmentType] = AlignmentType.LEFT, bold = false) => 
+  // Helper de Parágrafo
+  const para = (text: string, align: AlignOption = AlignmentType.LEFT, bold = false) => 
     new Paragraph({
       alignment: align,
       spacing: { before: 40, after: 40 },
       children: [
-        new TextRun({ 
-          text: cleanText(text), // <--- AQUI ESTÁ A MÁGICA
-          font: fontStyle, 
-          size: fontSize, 
-          bold: bold 
-        })
+        new TextRun({ text: cleanText(text), font: fontStyle, size: fontSize, bold: bold })
       ]
     });
 
-  // Helper de Célula também tipado corretamente
+  // Helper de Célula
   const cell = (
     text: string, 
     bold = false, 
-    align: (typeof AlignmentType)[keyof typeof AlignmentType] = AlignmentType.LEFT, 
+    align: AlignOption = AlignmentType.LEFT, 
     fill = "", 
     colSpan = 1
   ) => 
     new TableCell({
       columnSpan: colSpan,
       shading: fill ? { fill: fill } : undefined,
-      verticalAlign: "center",
+      verticalAlign: VerticalAlign.CENTER, // 2. Correção: Uso do Enum VerticalAlign
       children: [para(text, align, bold)],
-      margins: {
-        top: -10,     // 200 TWIPs = ~0.17cm
-        bottom: -10,
-        left: 50,
-        right: 50,
-      },
+      margins: { top: 100, bottom: 100, left: 100, right: 100 }, // Margens positivas (Twips)
     });
 
   const rowMerged = (label: string, value: string) => 
     new TableRow({
       children: [
-        // Aqui usamos AlignmentType.CENTER explicitamente
         cell(label, true, AlignmentType.CENTER, grayColor), 
-        // Aqui usamos AlignmentType.LEFT explicitamente
         cell(value, false, AlignmentType.LEFT, "", 2)       
       ]
     });
 
-  const col1 = 1800;
-  const col2 = 5200;
-  const col3 = 2000;
+  const col1 = 1800; // Largura da primeira coluna
+  const col2 = 5200; // Largura do meio
+  const col3 = 2000; // Largura da última
 
-  return new Table({
-    layout: TableLayoutType.FIXED,
-
-    width: { size: 100, type: WidthType.PERCENTAGE },
-    columnWidths: [col1, col2, col3],
-    
-    rows: [
-      // Cabeçalhos
-      new TableRow({
-        children: [
-          cell("ID", true, AlignmentType.CENTER, "FFFFFF"),
-          cell("Título", true, AlignmentType.CENTER, "FFFFFF"),
-          cell("Módulo", true, AlignmentType.CENTER, "FFFFFF"),
-        ],
-      }),
-      // Valores Principais
-      new TableRow({
-        children: [
-          cell(idVisual, true, AlignmentType.CENTER),
-          cell(data.titulo, false, AlignmentType.LEFT),
-          cell(data.modulo, true, AlignmentType.CENTER),
-        ],
-      }),
-      // Linhas Detalhadas
-      rowMerged("Descrição", data.descricao),
-      rowMerged("Atores", data.atores),
-      rowMerged("Pré-condições", data.preCondicoes),
-      rowMerged("Fluxo Principal", data.fluxoPrincipal),
-      rowMerged("Fluxos Alternativos", data.fluxosAlternativos),
-      rowMerged("Fluxos de Exceção", data.fluxosExcecao),
-      rowMerged("Pós-condições", data.posCondicoes),
-    ],
-  });
+  // 3. Correção: Retornar ARRAY
+  return [
+    new Table({
+      layout: TableLayoutType.FIXED,
+      width: { size: 100, type: WidthType.PERCENTAGE },
+      columnWidths: [col1, col2, col3],
+      rows: [
+        // Cabeçalho
+        new TableRow({
+          children: [
+            cell("ID", true, AlignmentType.CENTER, grayColor),
+            cell("Título", true, AlignmentType.CENTER, grayColor),
+            cell("Módulo", true, AlignmentType.CENTER, grayColor),
+          ],
+        }),
+        // Dados Principais
+        new TableRow({
+          children: [
+            cell(safeId, true, AlignmentType.CENTER),
+            cell(data.titulo, false, AlignmentType.LEFT),
+            cell(data.modulo, true, AlignmentType.CENTER),
+          ],
+        }),
+        // Linhas Detalhadas
+        rowMerged("Descrição", data.descricao),
+        rowMerged("Atores", data.atores),
+        rowMerged("Pré-condições", data.preCondicoes),
+        rowMerged("Fluxo Principal", data.fluxoPrincipal),
+        rowMerged("Fluxos Alternativos", data.fluxoAlternativo),
+        rowMerged("Fluxos de Exceção", data.fluxoExcecao),
+        rowMerged("Pós-condições", data.posCondicoes),
+      ],
+    })
+  ];
 };
 
-export const PluginTexto: BlockPlugin = {
-  type: 'string',
-  label: '+ Imagem',
-  buttonColor: 'bg-purple-600 hover:bg-purple-700 text-white',
-  initialContent: { base64: "", legenda: "" },
-  Component: ComponenteVisual,
+// 4. Definição do Plugin
+export const PluginTabelaCDU: BlockPlugin = {
+  type: 'cdu',
+  label: '+ Tabela CDU',
+  buttonColor: 'bg-blue-600 hover:bg-blue-700 text-white',
+  usesVisualId: true,
+  
+  // 4. Correção: Inicializar todos os campos para evitar undefined
+  initialContent: {
+    titulo: "",
+    modulo: "",
+    descricao: "",
+    atores: "",
+    preCondicoes: "",
+    posCondicoes: "",
+    fluxoPrincipal: "1. O usuário acessa...",
+    fluxoAlternativo: "",
+    fluxoExcecao: ""
+  },
+  
+  Component: BlocoCDUComponent,
   exporter: exportLogic
 };
