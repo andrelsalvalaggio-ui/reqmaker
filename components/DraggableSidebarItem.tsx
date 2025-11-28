@@ -1,35 +1,42 @@
 import React from 'react';
 import { useDraggable } from '@dnd-kit/core';
 
+// 1. Componente de UI Puro (Aparência do botão)
+// Exportamos ele para usar também no Overlay da page.tsx
+export function SidebarButton({ label, onClick, className = "" }: { label: string, onClick?: () => void, className?: string }) {
+  return (
+    <div 
+      onClick={onClick}
+      className={`bg-white border border-gray-200 p-3 rounded shadow-sm cursor-grab hover:bg-gray-50 mb-2 flex items-center gap-2 select-none ${className}`}
+    >
+      <span className="text-gray-400 text-lg">::</span>
+      <span className="font-bold text-gray-700 text-sm">{label}</span>
+    </div>
+  );
+}
+
+// 2. O Componente com Lógica de Drag
 interface Props {
   type: string;
   label: string;
 }
 
 export function DraggableSidebarItem({ type, label }: Props) {
-  // O ID precisa ser diferente dos blocos da lista para não dar conflito
-  const { attributes, listeners, setNodeRef, transform } = useDraggable({
+  const { attributes, listeners, setNodeRef, isDragging } = useDraggable({
     id: `sidebar-btn-${type}`,
     data: {
       type: type,
-      isSidebarItem: true, // Flag para identificarmos no onDragEnd
+      label: label, // Passamos o label no data para o Overlay saber o nome
+      isSidebarItem: true,
     },
   });
 
-  const style = transform ? {
-    transform: `translate3d(${transform.x}px, ${transform.y}px, 0)`,
-  } : undefined;
-
+  // TRUQUE: Não aplicamos 'transform' aqui!
+  // O item da sidebar fica parado. Se estiver sendo arrastado, reduzimos a opacidade.
+  
   return (
-    <div 
-      ref={setNodeRef} 
-      style={style} 
-      {...listeners} 
-      {...attributes}
-      className="bg-white border border-gray-200 p-3 rounded shadow-sm cursor-grab hover:bg-gray-50 mb-2 flex items-center gap-2"
-    >
-      <span className="text-gray-500 text-lg">::</span>
-      <span className="font-bold text-gray-700 text-sm">{label}</span>
+    <div ref={setNodeRef} {...listeners} {...attributes} className={isDragging ? 'opacity-30' : 'opacity-100'}>
+      <SidebarButton label={label} />
     </div>
   );
 }

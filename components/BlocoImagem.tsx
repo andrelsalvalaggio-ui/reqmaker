@@ -87,7 +87,7 @@ const exportLogic = (data: ImagemData) => {
       const bytes = new Uint8Array(binaryString.length);
       for (let i = 0; i < binaryString.length; i++) bytes[i] = binaryString.charCodeAt(i);
       
-      const MAX_WIDTH = 500;
+      const MAX_WIDTH = 600;
       let finalWidth = MAX_WIDTH;
       let finalHeight = 300; // fallback
 
