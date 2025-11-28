@@ -24,6 +24,11 @@ export interface BlockPlugin {
     idVisual?: string; // ex: "CDU01"
   }>;
 
+  PropertiesComponent?: React.FC<{
+    data: any;
+    onUpdate: (newData: any) => void;
+  }>;
+
   // A função que transforma os dados em nós do DOCX
   exporter: (content: any, idVisual?: string) => any[];
 }

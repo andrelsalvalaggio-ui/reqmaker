@@ -77,7 +77,7 @@ export function SortableItem({ id, children, onMoveUp, onMoveDown, isFirst, isLa
       </div>
       
       {/* CONTEÚDO (Tabela ou Texto) */}
-      <div className={`cursor-default bg-white ${isDragging ? 'opacity-50' : ''}`}>
+      <div className={`cursor-default ${isDragging ? 'opacity-50' : ''}`}>
         {children}
       </div>
     </div>

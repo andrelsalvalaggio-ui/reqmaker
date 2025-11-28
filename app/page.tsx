@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useId } from 'react';
-import { DndContext, closestCenter, DragEndEvent } from '@dnd-kit/core';
+import { DndContext, DragEndEvent, DragOverlay, useSensor, useSensors, PointerSensor, DragStartEvent } from '@dnd-kit/core';
 import { arrayMove, SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import { SortableItem } from '../components/SortableItem';
 import { Block } from './types';
@@ -10,26 +10,33 @@ import { getPlugins, getPlugin } from './registry';
 import DocxViewer from '../components/DocxViewer';
 
 export default function Home() {
-  const dndContextId = useId();
-  const [isPreview, setIsPreview] = useState(false);
-  
   const [blocks, setBlocks] = useState<Block[]>([]);
+  const [selectedBlockId, setSelectedBlockId] = useState<string | null>(null); // Estado de Seleção
+  const [activeDragItem, setActiveDragItem] = useState<any>(null); // Para o Overlay visual
+  const [isPreview, setIsPreview] = useState(false);
+
+  // Configuração de sensores para melhorar a experiência do Drag
+  const sensors = useSensors(
+    useSensor(PointerSensor, {
+      activationConstraint: { distance: 5 }, // Previne drags acidentais ao clicar
+    })
+  );
 
   // Adiciona bloco buscando dados iniciais do Plugin
-  const addBlock = (pluginType: string) => {
-    const plugin = getPlugin(pluginType);
+  const addBlock = (type: string) => {
+    const plugin = getPlugin(type);
     if (!plugin) return;
-
     const newBlock: Block = {
       id: `blk-${Date.now()}`,
-      type: pluginType,
-      content: JSON.parse(JSON.stringify(plugin.initialContent)) // Deep copy
+      type: type,
+      content: JSON.parse(JSON.stringify(plugin.initialContent))
     };
-    setBlocks([...blocks, newBlock]);
+    setBlocks(prev => [...prev, newBlock]);
+    setSelectedBlockId(newBlock.id); // Seleciona automaticamente ao criar
   };
 
   const updateBlockContent = (id: string, newContent: any) => {
-    setBlocks(prevBlocks => prevBlocks.map(b => b.id === id ? { ...b, content: newContent } : b));
+    setBlocks(prev => prev.map(b => b.id === id ? { ...b, content: newContent } : b));
   };
 
   const moveBlock = (index: number, direction: 'up' | 'down') => {
@@ -37,16 +44,33 @@ export default function Home() {
     if (newIndex >= 0 && newIndex < blocks.length) setBlocks((items) => arrayMove(items, index, newIndex));
   };
 
-  function handleDragEnd(event: DragEndEvent) {
+  const handleDragStart = (event: DragStartEvent) => {
+    setActiveDragItem(event.active.data.current);
+  };
+
+  const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
-    if (over && active.id !== over.id) {
+    setActiveDragItem(null);
+
+    if (!over) return;
+
+    // 1. Lógica: Arrastou da Sidebar para a Área Principal
+    if (active.data.current?.isSidebarItem) {
+      // Adiciona no final da lista
+      // (Futuramente podemos calcular o index baseado em onde soltou)
+      addBlock(active.data.current.type);
+      return;
+    }
+
+    // 2. Lógica: Reordenar lista existente
+    if (active.id !== over.id) {
       setBlocks((items) => {
         const oldIndex = items.findIndex(b => b.id === active.id);
         const newIndex = items.findIndex(b => b.id === over.id);
         return arrayMove(items, oldIndex, newIndex);
       });
     }
-  }
+  };
 
   const renderList = () => {
     return blocks.map((block, index) => {
@@ -111,7 +135,7 @@ export default function Home() {
       </div>
 
       {/* ÁREA DE CONTEÚDO */}
-      <div className={isPreview ? '' : 'max-w-5xl mx-auto mt-8'}>
+      <div className={isPreview ? '' : 'max-w-4xl mx-auto mt-8'}>
         {isPreview ? <DocxViewer blocks={blocks} /> : (
           <DndContext id={dndContextId} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
             <SortableContext items={blocks.map(b => b.id)} strategy={verticalListSortingStrategy}>
