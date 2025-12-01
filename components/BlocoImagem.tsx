@@ -3,17 +3,18 @@
 import React, { ChangeEvent } from 'react';
 import { Paragraph, ImageRun, AlignmentType, TextRun } from "docx";
 import { BlockPlugin } from '../app/types';
+import { NumberInput } from '../components/ui/NumberInput';
 
 interface ImagemData {
   base64: string;
   legenda: string;
-  width?: number;
-  height?: number;
+  width: number;
+  height: number;
 }
 
 // --- COMPONENTE VISUAL ---
 const BlocoImagemComponent = ({ data, onUpdate, readOnly }: any) => {
-  const typedData = data as ImagemData;
+  const imgData = data as ImagemData;
 
   const handleUpload = (e: ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -27,7 +28,7 @@ const BlocoImagemComponent = ({ data, onUpdate, readOnly }: any) => {
       img.src = result;
       img.onload = () => {
         onUpdate({ 
-          ...ImageData, 
+          ...imgData, 
           base64: result,
           width: img.naturalWidth > 500 ? 500 : img.naturalWidth,
           height: img.naturalHeight > 300 ? 300 : img.naturalHeight
@@ -42,13 +43,13 @@ const BlocoImagemComponent = ({ data, onUpdate, readOnly }: any) => {
 
   const imageStyle: React.CSSProperties = {
     // Se tiver valor, usa pixel. Se for 0 ou undefined, usa 'auto'
-    width: ImageData.width > 0 ? `${ImageData.width}px` : 'auto',
-    height: ImageData.height > 0 ? `${ImageData.height}px` : 'auto',
+    width: imgData.width > 0 ? `${imgData.width}px` : 'auto',
+    height: imgData.height > 0 ? `${imgData.height}px` : 'auto',
   };
 
   return (
     <div className={`my-4 mx-auto transition-all ${readOnly ? 'preview-mode' : 'p-4 bg-white shadow-sm border border-gray-200'}`}>
-      {!typedData.base64 && !readOnly && (
+      {!imgData.base64 && !readOnly && (
         <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center bg-gray-50 hover:bg-gray-100 transition">
           <p className="text-gray-500 mb-2">Adicionar Imagem</p>
           <input type="file" accept="image/*" onChange={handleUpload} className="hidden" id={`upload-${id}`} />
@@ -59,18 +60,18 @@ const BlocoImagemComponent = ({ data, onUpdate, readOnly }: any) => {
            <input type="file" accept="image/*" onChange={handleUpload} className="mt-2" />
         </div>
       )}
-      {typedData.base64 && (
+      {imgData.base64 && (
         <div className="text-center">
-          <img src={typedData.base64} alt="Preview" className={`h-auto max-h-[800px] mx-auto rounded shadow-sm object-contain`}/>
+          <img src={imgData.base64} alt="Preview" style={imageStyle} className='max-w-full mx-auto rounded shadow-sm'/>
           <input 
             className="w-full text-center text-sm text-gray-600 font-bold italic bg-transparent outline-none mt-2"
             placeholder={readOnly ? "" : "Legenda (opcional)..."}
-            value={typedData.legenda}
-            onChange={(e) => onUpdate({ ...typedData, legenda: e.target.value })}
+            value={imgData.legenda}
+            onChange={(e) => onUpdate({ ...imgData, legenda: e.target.value })}
             disabled={readOnly}
           />
           {!readOnly && (
-             <button onClick={() => onUpdate({...typedData, base64: "", width: 0, height: 0})} className="text-xs text-red-500 mt-2 hover:underline">Remover Imagem</button>
+             <button onClick={() => onUpdate({...imgData, base64: "", width: 0, height: 0})} className="text-xs text-red-500 mt-2 hover:underline">Remover Imagem</button>
           )}
         </div>
       )}
@@ -95,13 +96,8 @@ const exportLogic = (data: ImagemData) => {
       for (let i = 0; i < binaryString.length; i++) bytes[i] = binaryString.charCodeAt(i);
       
       const MAX_WIDTH = 600;
-      let finalWidth = MAX_WIDTH;
-      let finalHeight = 300; // fallback
-
-      if (data.width && data.height) {
-        const ratio = data.height / data.width;
-        finalHeight = Math.round(MAX_WIDTH * ratio);
-      }
+      let finalWidth = data.width > MAX_WIDTH ? 600 : data.width;
+      let finalHeight = data.height; 
 
       elements.push(new Paragraph({
         alignment: AlignmentType.CENTER,
@@ -139,35 +135,39 @@ const exportLogic = (data: ImagemData) => {
 };
 
 const ImagemProperties = ({ data, onUpdate }: { data: ImagemData, onUpdate: (d: any) => void }) => {
+  
+  const handleChange = (field: 'width' | 'height', value: number) => {
+    onUpdate({ ...data, [field]: value });
+  };
+
   return (
-    <div className="flex flex-col gap-4">
-      <h3 className="font-bold text-gray-700 border-b pb-2">Configurações de Imagem</h3>
+    <div className="flex flex-col gap-4 animate-fade-in">
+      <h3 className="text-xs uppercase font-bold text-gray-400 border-b pb-2 mb-2">Dimensões</h3>
       
-      {/* Inputs de Dimensão */}
-      <div className="grid grid-cols-2 gap-2">
-        <div>
-          <label className="text-xs font-bold text-gray-500">Largura (px)</label>
-          <input 
-            type="number" 
-            className="w-full border rounded p-1 text-sm"
-            value={data.width || 0}
-            onChange={(e) => onUpdate({ ...data, width: Number(e.target.value) })}
-          />
-        </div>
-        <div>
-          <label className="text-xs font-bold text-gray-500">Altura (px)</label>
-          <input 
-            type="number" 
-            className="w-full border rounded p-1 text-sm"
-            value={data.height || 0}
-            onChange={(e) => onUpdate({ ...data, height: Number(e.target.value) })}
-          />
-        </div>
+      <div className="grid grid-cols-2 gap-3">
+        {/* Agora usamos o componente reutilizável */}
+        <NumberInput 
+          label="Largura" 
+          value={data.width}
+          dragLabel='W'
+          suffix='px'
+          dragSpeed={32}
+          onChange={(val) => handleChange('width', val)} 
+        />
+        
+        <NumberInput 
+          label="Altura" 
+          value={data.height}
+          dragLabel='H'
+          suffix='px'
+          dragSpeed={32}
+          onChange={(val) => handleChange('height', val)} 
+        />
       </div>
-      
-      <p className="text-xs text-gray-400">
-        Defina 0 para usar o tamanho automático. A proporção será mantida se apenas um valor for definido.
-      </p>
+
+      <div className="bg-blue-50 text-blue-700 text-xs p-3 rounded border border-blue-100 mt-2">
+        ℹ️ <strong>Dica:</strong> Clique e arraste sobre os nomes "Largura" ou "Altura" para ajustar rapidamente. Deixe 0 para "Auto".
+      </div>
     </div>
   );
 };

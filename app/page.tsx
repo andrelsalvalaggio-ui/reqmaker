@@ -121,9 +121,9 @@ export default function Home() {
         
         {/* HEADER (Toolbar) */}
         <header className="h-14 bg-white border-b flex items-center justify-between px-6 shrink-0 z-20">
-          <div className="font-bold text-xl text-gray-800">ReqEditor <span className="text-xs font-normal text-gray-500">v2.0</span></div>
+          <div className="font-bold text-xl text-gray-800">ReqMaker <span className="text-xs font-normal text-gray-500">v2.0</span></div>
           <div className="flex gap-3">
-             <button onClick={() => setIsPreview(!isPreview)} className="text-sm px-3 py-1 bg-gray-100 hover:bg-gray-200 rounded border">
+             <button onClick={() => setIsPreview(!isPreview)} className="text-sm text-gray-600 px-3 py-1 bg-gray-100 hover:bg-gray-200 rounded border">
                 {isPreview ? 'Voltar para Edição' : 'Visualizar Documento'}
              </button>
              <button onClick={() => generateAndDownloadDocx(blocks)} className="text-sm px-3 py-1 bg-blue-600 text-white rounded hover:bg-blue-700 font-bold">
