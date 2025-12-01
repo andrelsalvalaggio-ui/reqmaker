@@ -29,15 +29,22 @@ const BlocoImagemComponent = ({ data, onUpdate, readOnly }: any) => {
         onUpdate({ 
           ...ImageData, 
           base64: result,
-          width: img.naturalWidth,
-          height: img.naturalHeight
+          width: img.naturalWidth > 500 ? 500 : img.naturalWidth,
+          height: img.naturalHeight > 300 ? 300 : img.naturalHeight
         });
+        console.log('natural width: ', img.naturalWidth)
       };
     };
     reader.readAsDataURL(file);
   };
 
   const id = React.useId();
+
+  const imageStyle: React.CSSProperties = {
+    // Se tiver valor, usa pixel. Se for 0 ou undefined, usa 'auto'
+    width: ImageData.width > 0 ? `${ImageData.width}px` : 'auto',
+    height: ImageData.height > 0 ? `${ImageData.height}px` : 'auto',
+  };
 
   return (
     <div className={`my-4 mx-auto transition-all ${readOnly ? 'preview-mode' : 'p-4 bg-white shadow-sm border border-gray-200'}`}>
@@ -54,7 +61,7 @@ const BlocoImagemComponent = ({ data, onUpdate, readOnly }: any) => {
       )}
       {typedData.base64 && (
         <div className="text-center">
-          <img src={typedData.base64} alt="Preview" className="max-w-full h-auto max-h-[500px] mx-auto rounded shadow-sm object-contain"/>
+          <img src={typedData.base64} alt="Preview" className={`h-auto max-h-[800px] mx-auto rounded shadow-sm object-contain`}/>
           <input 
             className="w-full text-center text-sm text-gray-600 font-bold italic bg-transparent outline-none mt-2"
             placeholder={readOnly ? "" : "Legenda (opcional)..."}
