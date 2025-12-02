@@ -1,8 +1,6 @@
 import React from 'react';
 import { useDraggable } from '@dnd-kit/core';
 
-// 1. Componente de UI Puro (Aparência do botão)
-// Exportamos ele para usar também no Overlay da page.tsx
 export function SidebarButton({ label, onClick, className = "" }: { label: string, onClick?: () => void, className?: string }) {
   return (
     <div 
@@ -14,29 +12,27 @@ export function SidebarButton({ label, onClick, className = "" }: { label: strin
     </div>
   );
 }
-
 // 2. O Componente com Lógica de Drag
 interface Props {
   type: string;
   label: string;
+  onAddClick: () => void;
 }
 
-export function DraggableSidebarItem({ type, label }: Props) {
+export function DraggableSidebarItem({ type, label, onAddClick }: Props) {
   const { attributes, listeners, setNodeRef, isDragging } = useDraggable({
     id: `sidebar-btn-${type}`,
     data: {
       type: type,
-      label: label, // Passamos o label no data para o Overlay saber o nome
+      label: label,
       isSidebarItem: true,
     },
   });
 
-  // TRUQUE: Não aplicamos 'transform' aqui!
-  // O item da sidebar fica parado. Se estiver sendo arrastado, reduzimos a opacidade.
-  
   return (
     <div ref={setNodeRef} {...listeners} {...attributes} className={isDragging ? 'opacity-30' : 'opacity-100'}>
-      <SidebarButton label={label} />
+      {/* Passamos o clique para o botão visual */}
+      <SidebarButton label={label} onClick={onAddClick} />
     </div>
   );
 }

@@ -34,7 +34,7 @@ export function SortableItem({ id, children, onMoveUp, onMoveDown, isFirst, isLa
     <div 
       ref={setNodeRef} 
       style={style} 
-      className="mb-6 w-full" // w-full força a largura total
+      className="w-full gap-0" // w-full força a largura total
     >
       
       {/* BARRA DE CONTROLE (HANDLE) */}

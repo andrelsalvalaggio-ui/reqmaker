@@ -5,6 +5,7 @@ import React, { useState, useRef, useEffect } from 'react';
 interface StringInputProps {
   label: string;
   value: string;
+  height?: number;
   onChange: (val: string) => void;
   placeholder?: string;
 }
@@ -12,6 +13,7 @@ interface StringInputProps {
 export function StringInput({ 
   label, 
   value,
+  height,
   onChange,
   placeholder = "Digite aqui..."
 }: StringInputProps) {
@@ -25,7 +27,8 @@ export function StringInput({
 
           <div className={`flex items-center p-1 bg-white border rounded transition-all overflow-hidden ${isActive ? 'border-blue-500 ring-2 ring-blue-100 z-10' : 'border-gray-200 hover:border-gray-300'}`}>
             <textarea
-              className="w-full text-sm resize-none min-h-20 max-h-100 field-sizing-content outline-none px-2 py-1 text-gray-700 placeholder-gray-300 bg-transparent"
+              className="w-full text-sm resize-none max-h-100 field-sizing-content outline-none px-2 py-1 text-gray-700 placeholder-gray-300 bg-transparent"
+              style={height ? { minHeight: `${height}px` } : {}}
               
               // 1. O VALOR PRECISA ESTAR AQUI
               value={value || ""} 

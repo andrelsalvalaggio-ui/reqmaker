@@ -24,7 +24,7 @@ const BlocoTextoComponent = ({ data, onUpdate, readOnly = false }: any) => {
   };
 
   return (
-    <div className={`my-2 max-w-4xl mx-auto ${readOnly ? 'preview-mode px-0' : 'bg-white group hover:shadow-md px-4 py-2 border border-transparent hover:border-gray-100 transition-all rounded'}`}>
+    <div className={`max-w-4xl mx-auto ${readOnly ? 'preview-mode px-0' : 'bg-white group hover:shadow-md px-4 py-2 border border-transparent hover:border-gray-100 transition-all rounded'}`}>
       <textarea
         className="w-full text-gray-700 outline-none resize-none field-sizing-content min-h-[24px] bg-transparent leading-relaxed"
         placeholder={readOnly ? "" : data.placeholder || ""}
@@ -67,13 +67,14 @@ const exportLogic = (data: TextData) => {
 
 const TextoProperties = ({ data, onUpdate }: { data: TextData, onUpdate: (d: any) => void }) => {
   // Fallback caso data venha undefined ou string
-  const safeData: TextData = typeof data === 'string' ? { value: data, fontSize: 12 }
+  const safeData: TextData = typeof data === 'string' ? { value: data, fontSize: 12, placeholder: data }
     : { 
         value: data?.value || "", 
-        fontSize: data?.fontSize || 12 // Se fontSize não existir, usa 12
+        fontSize: data?.fontSize || 16, // Se fontSize não existir, usa 
+        placeholder: data?.placeholder
       };
   
-  if (!safeData.fontSize) safeData.fontSize = 12;
+  if (!safeData.fontSize) safeData.fontSize = 16;
 
   return (
     <div className="flex flex-col gap-4 animate-fade-in">
@@ -95,6 +96,7 @@ const TextoProperties = ({ data, onUpdate }: { data: TextData, onUpdate: (d: any
         <StringInput 
           label="Texto Principal" 
           value={safeData.value}
+          height={150}
           onChange={(val) => onUpdate({ ...safeData, value: val })} 
           placeholder="Conteúdo do parágrafo..."
         />
@@ -107,7 +109,7 @@ export const PluginTexto: BlockPlugin = {
   type: 'texto',
   label: 'Texto',
   buttonColor: 'bg-white border border-gray-300 text-gray-700 hover:bg-gray-100',
-  initialContent: { value: "", fontSize: 12, placeholder: "Digite seu texto aqui..."},
+  initialContent: { value: "", fontSize: 16, placeholder: "Digite seu texto aqui..."},
   
   Component: BlocoTextoComponent,
   PropertiesComponent: TextoProperties,

@@ -4,6 +4,7 @@ import React from 'react';
 // 1. Adicionado VerticalAlign aos imports
 import { Paragraph, TextRun, Table, TableRow, TableCell, WidthType, TableLayoutType, AlignmentType, VerticalAlign } from "docx";
 import { BlockPlugin } from '../app/types';
+import { StringInput } from '../components/ui/StringInput';
 
 // 1. Definição dos dados
 interface CDUData {
@@ -180,10 +181,76 @@ const exportLogic = (data: CDUData, idVisual?: string) => {
   ];
 };
 
+const CDUProperties = ({ data, onUpdate }: { data: CDUData, onUpdate: (d: any) => void }) => {
+
+  return (
+    <div className="flex flex-col gap-4 animate-fade-in">
+      <h3 className="text-xs uppercase font-bold text-gray-400 border-b pb-2 mb-2">Conteúdo</h3>
+  
+        <StringInput 
+          label="Titulo" 
+          value={data.titulo}
+          onChange={(val) => onUpdate({ ...data, titulo: val })} 
+          placeholder="Titulo do caso de uso..."
+        />
+        <StringInput 
+          label="Descrição" 
+          value={data.descricao}
+          height={80}
+          onChange={(val) => onUpdate({ ...data, descricao: val })} 
+          placeholder="Conteúdo da descrição..."
+        />
+        <StringInput 
+          label="Atores" 
+          value={data.atores}
+          onChange={(val) => onUpdate({ ...data, atores: val })} 
+          placeholder="Atores do caso de uso..."
+        />
+        <StringInput 
+          label="Pré Condições" 
+          value={data.preCondicoes}
+          height={80}
+          onChange={(val) => onUpdate({ ...data, preCondicoes: val })} 
+          placeholder="Pré condições do caso de uso..."
+        />
+        <StringInput 
+          label="Fluxo Principal" 
+          value={data.fluxoPrincipal}
+          height={150}
+          onChange={(val) => onUpdate({ ...data, fluxoPrincipal: val })} 
+          placeholder="Fluxo Principal do caso de uso..."
+        />
+        <StringInput 
+          label="Fluxos Alternativos" 
+          value={data.fluxoAlternativo}
+          height={150}
+          onChange={(val) => onUpdate({ ...data, fluxoAlternativo: val })} 
+          placeholder="Fluxos Alternativos do caso de uso..."
+        />
+        <StringInput 
+          label="Fluxo Exceção" 
+          value={data.fluxoExcecao}
+          height={150}
+          onChange={(val) => onUpdate({ ...data, fluxoExcecao: val })} 
+          placeholder="Fluxo Exceção do caso de uso..."
+        />
+        <StringInput 
+          label="Pós Condições" 
+          value={data.posCondicoes}
+          height={80}
+          onChange={(val) => onUpdate({ ...data, posCondicoes: val })} 
+          placeholder="Pós Condições do caso de uso..."
+        />
+
+        
+    </div>
+  );
+};
+
 // 4. Definição do Plugin
 export const PluginTabelaCDU: BlockPlugin = {
   type: 'cdu',
-  label: '+ Tabela CDU',
+  label: 'Tabela CDU',
   buttonColor: 'bg-blue-600 hover:bg-blue-700 text-white',
   usesVisualId: true,
   
@@ -201,5 +268,7 @@ export const PluginTabelaCDU: BlockPlugin = {
   },
   
   Component: BlocoCDUComponent,
-  exporter: exportLogic
+  exporter: exportLogic,
+
+  PropertiesComponent: CDUProperties
 };
