@@ -3,7 +3,7 @@
 import React from 'react';
 import { Paragraph, TextRun, AlignmentType } from "docx";
 import { BlockPlugin } from '../app/types';
-import { StringInput } from '../components/ui/StringInput';
+import { StringInput } from './ui/StringInput';
 import { NumberInput } from './ui/NumberInput';
 import { text } from 'stream/consumers';
 

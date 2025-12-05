@@ -4,7 +4,7 @@ import React from 'react';
 // 1. Adicionado VerticalAlign aos imports
 import { Paragraph, TextRun, Table, TableRow, TableCell, WidthType, TableLayoutType, AlignmentType, VerticalAlign } from "docx";
 import { BlockPlugin } from '../app/types';
-import { StringInput } from '../components/ui/StringInput';
+import { StringInput } from './ui/StringInput';
 
 // 1. Definição dos dados
 interface CDUData {
@@ -130,7 +130,7 @@ const exportLogic = (data: CDUData, idVisual?: string) => {
       shading: fill ? { fill: fill } : undefined,
       verticalAlign: VerticalAlign.CENTER, // 2. Correção: Uso do Enum VerticalAlign
       children: [para(text, align, bold)],
-      margins: { top: 100, bottom: 100, left: 100, right: 100 }, // Margens positivas (Twips)
+      margins: { top: 0, bottom: 0, left: 100, right: 100 }, // Margens positivas (Twips)
     });
 
   const rowMerged = (label: string, value: string) => 
@@ -177,7 +177,8 @@ const exportLogic = (data: CDUData, idVisual?: string) => {
         rowMerged("Fluxos de Exceção", data.fluxoExcecao),
         rowMerged("Pós-condições", data.posCondicoes),
       ],
-    })
+    }),
+    para(''),
   ];
 };
 

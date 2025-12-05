@@ -3,7 +3,7 @@
 import React, { ChangeEvent } from 'react';
 import { Paragraph, ImageRun, AlignmentType, TextRun } from "docx";
 import { BlockPlugin } from '../app/types';
-import { NumberInput } from '../components/ui/NumberInput';
+import { NumberInput } from './ui/NumberInput';
 
 interface ImagemData {
   base64: string;
